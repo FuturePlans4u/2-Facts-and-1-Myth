@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2 Truths and a Career Myth</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(180deg, #eef6ff, #f8fbff);
+      color: #1f2937;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 30px auto;
+      background: #ffffff;
+      border-radius: 18px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.10);
+      padding: 28px;
+    }
+
+    h1, h2 {
+      text-align: center;
+      margin-top: 0;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #4b5563;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: #f9fbff;
+      border: 1px solid #dbe7ff;
+      border-radius: 14px;
+      padding: 20px;
+      margin-top: 18px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 700px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 16px;
+    }
+
+    input, select {
+      border: 1px solid #c9d5ea;
+      background: #fff;
+    }
+
+    button {
+      border: none;
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .start-btn {
+      background: #2563eb;
+    }
+
+    .start-btn:hover {
+      background: #1d4ed8;
+    }
+
+    .statement-btn {
+      background: #0f766e;
+      text-align: left;
+      line-height: 1.5;
+      min-height: 90px;
+    }
+
+    .statement-btn:hover {
+      background: #115e59;
+    }
+
+    .next-btn {
+      background: #64748b;
+    }
+
+    .next-btn:hover {
+      background: #475569;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .scoreboard {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+      font-weight: 700;
+    }
+
+    .pill {
+      background: #eef2ff;
+      border: 1px solid #c7d2fe;
+      padding: 10px 14px;
+      border-radius: 999px;
+    }
+
+    .choices {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .instruction {
+      text-align: center;
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .result {
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 12px;
+      line-height: 1.7;
+      border: 1px solid;
+    }
+
+    .correct {
+      background: #ecfdf5;
+      border-color: #86efac;
+    }
+
+    .incorrect {
+      background: #fef2f2;
+      border-color: #fca5a5;
+    }
+
+    .summary-box {
+      margin-top: 15px;
+      padding: 14px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+    }
+
+    .small {
+      font-size: 14px;
+      color: #6b7280;
+    }
+
+    .statement-label {
+      display: inline-block;
+      font-weight: 800;
+      margin-right: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>2 Truths and a Career Myth</h1>
+    <p class="subtitle">Choose the one statement that is not true.</p>
+
+    <div id="startScreen">
+      <div class="card">
+        <div class="grid">
+          <div>
+            <label for="playerName">Player Name</label>
+            <input type="text" id="playerName" placeholder="Enter your name" />
+          </div>
+
+          <div>
+            <label for="roundSelect">Number of Rounds</label>
+            <select id="roundSelect">
+              <option value="5">5</option>
+              <option value="10" selected>10</option>
+              <option value="15">15</option>
+              <option value="20">20</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="start-btn" onclick="startGame()">Start Game</button>
+
+        <div class="summary-box">
+          <strong>Total truths loaded:</strong> <span id="truthCount"></span><br>
+          <strong>Total myths loaded:</strong> <span id="mythCount"></span><br>
+          <strong>How to play:</strong> Each round shows 3 statements. <strong>2 are true</strong> and <strong>1 is a myth</strong>. Click the myth.
+        </div>
+      </div>
+    </div>
+
+    <div id="gameScreen" class="hidden">
+      <div class="scoreboard">
+        <div class="pill" id="roundInfo">Round 1 of 10</div>
+        <div class="pill" id="scoreInfo">Score: 0</div>
+        <div class="pill" id="correctInfo">Correct: 0</div>
+      </div>
+
+      <div class="card">
+        <div class="instruction">Which one is the career myth?</div>
+        <div class="choices" id="choicesContainer"></div>
+        <div id="resultBox" class="result hidden"></div>
+        <button id="nextButton" class="next-btn hidden" onclick="nextRound()">Next Round</button>
+      </div>
+    </div>
+
+    <div id="endScreen" class="hidden">
+      <div class="card">
+        <h2 id="finalMessage">Game Over</h2>
+        <p id="finalScore"></p>
+        <p id="finalBreakdown"></p>
+        <p id="playerSummary"></p>
+        <button class="start-btn" onclick="restartGame()">Play Again</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const truths = [
+      "Some skilled trades earn more than many 4-year degrees.",
+      "Elevator installers are among the highest-paid trade workers.",
+      "Dental hygienists can earn strong salaries with an associate degree.",
+      "Radiation therapists often earn over $80,000 annually.",
+      "Many commercial pilots do not start at major airlines.",
+      "Data analysts are in demand across almost every industry.",
+      "Air traffic controllers undergo intense specialized training.",
+      "Sales roles often include commission-based pay.",
+      "Cybersecurity jobs continue to grow faster than average.",
+      "Some court reporters earn six figures.",
+      "Apprenticeships allow you to earn while you learn.",
+      "Welding certifications can be completed in under a year.",
+      "Linemen work on high-voltage electrical systems.",
+      "HVAC technicians are needed in every climate.",
+      "Plumbers often complete multi-year apprenticeships.",
+      "CNC machinists program manufacturing equipment.",
+      "Industrial maintenance techs troubleshoot factory systems.",
+      "Heavy equipment operators require formal training.",
+      "Some electricians specialize in solar systems.",
+      "Robotics technicians maintain automated systems.",
+      "UX designers focus on user experience, not just visuals.",
+      "Cloud computing specialists manage remote servers.",
+      "Ethical hackers test company security systems.",
+      "Digital marketers analyze online traffic data.",
+      "IT support roles can lead into cybersecurity.",
+      "Web developers can specialize in front-end or back-end.",
+      "AI trainers help improve machine learning systems.",
+      "Database administrators manage large data systems.",
+      "Remote tech jobs often require strong communication skills.",
+      "Many tech certifications do not require college degrees.",
+      "Surgical technologists assist during operations.",
+      "Medical sonographers use imaging equipment.",
+      "Occupational therapists help patients regain skills.",
+      "Respiratory therapists work with breathing disorders.",
+      "EMTs must complete certification programs.",
+      "Healthcare administration is a non-clinical career.",
+      "Pharmacy technicians require certification.",
+      "Travel nurses work short-term contracts.",
+      "Physical therapy assistants support therapists.",
+      "Healthcare informatics combines tech and medicine.",
+      "Foley artists create sound effects for movies.",
+      "Industrial designers create product prototypes.",
+      "Voice-over artists work in commercials and animation.",
+      "Set designers build environments for film and theater.",
+      "Tattoo artists often complete apprenticeships.",
+      "Social media managers track engagement data.",
+      "Technical writers simplify complex instructions.",
+      "Fashion buyers analyze trends and sales.",
+      "Game testers report software issues.",
+      "Illustrators often freelance.",
+      "Actuaries analyze risk using math.",
+      "Land surveyors measure property boundaries.",
+      "Morticians complete formal education.",
+      "Underwater welders work offshore.",
+      "Wind turbine technicians climb tall towers.",
+      "Geotechnical engineers test soil stability.",
+      "Compliance officers ensure regulations are followed.",
+      "Logistics coordinators manage supply chains.",
+      "Court interpreters translate legal proceedings.",
+      "Claims adjusters investigate insurance cases.",
+      "Financial analysts evaluate investment options.",
+      "HR specialists manage employee relations.",
+      "Project managers coordinate teams.",
+      "Accountants work in many industries.",
+      "Supply chain managers oversee product movement.",
+      "Business analysts identify efficiency gaps.",
+      "Auditors review financial records.",
+      "Procurement specialists negotiate vendor contracts.",
+      "Payroll specialists manage employee compensation.",
+      "Risk managers assess business threats.",
+      "Drone operators are used in agriculture and inspections.",
+      "Sustainability managers reduce environmental impact.",
+      "Esports coaches train competitive gamers.",
+      "Telehealth coordinators manage virtual visits.",
+      "Influencer managers negotiate brand deals.",
+      "3D printing technicians create prototypes.",
+      "Data privacy officers protect personal data.",
+      "Renewable energy consultants advise companies.",
+      "Digital forensics experts analyze cybercrime.",
+      "AR/VR developers build immersive experiences.",
+      "Communication skills are valued across industries.",
+      "Many careers require ongoing training.",
+      "Networking often impacts hiring decisions.",
+      "Transferable skills help career transitions.",
+      "Certifications can boost salary potential.",
+      "Internships increase employability.",
+      "Professional references matter.",
+      "Some careers require background checks.",
+      "Licensing varies by state.",
+      "Experience can outweigh degrees in some fields.",
+      "Apprenticeships can last 3–5 years.",
+      "Some remote jobs require time-zone flexibility.",
+      "Commission roles may have income fluctuations.",
+      "Career growth often requires upskilling.",
+      "Job outlook differs by region.",
+      "Skilled trades face worker shortages.",
+      "Healthcare demand is increasing with aging populations.",
+      "Technology skills are valuable in non-tech jobs.",
+      "Certifications often require renewal.",
+      "Career pivots are common in adulthood.",
+      "Networking increases job mobility.",
+      "Employers value problem-solving skills.",
+      "Salary research helps negotiation.",
+      "Leadership skills can be developed.",
+      "Career coaches help clarify pathways.",
+      "Many high-paying jobs don’t require a master’s degree.",
+      "Apprentices earn wages during training.",
+      "Some manufacturing jobs are highly technical.",
+      "Job shadowing improves career clarity.",
+      "Volunteer work can build experience.",
+      "Trade schools can be shorter than college.",
+      "Certifications can stack toward degrees.",
+      "Some industries require physical fitness.",
+      "Skilled trades can be recession-resistant.",
+      "Remote jobs still require productivity metrics.",
+      "Interview skills can be practiced.",
+      "LinkedIn profiles impact hiring.",
+      "Resumes should show measurable results.",
+      "Salary ranges vary by experience.",
+      "Career satisfaction often connects to work environment."
+    ];
+
+    const myths = [
+      "All high-paying jobs require a 4-year degree.",
+      "Trade careers don’t pay well.",
+      "You can’t change careers after 40.",
+      "Creative jobs are never stable.",
+      "Remote jobs don’t require accountability.",
+      "Once you choose a career, you’re stuck forever.",
+      "Employers only care about GPA.",
+      "Certifications are worthless.",
+      "You must be naturally talented to succeed.",
+      "Apprenticeships are only for people who failed college.",
+      "All tech jobs require advanced coding.",
+      "Healthcare careers always require medical school.",
+      "You should accept the first salary offer.",
+      "Promotions automatically come with time.",
+      "You can’t make money in skilled trades.",
+      "Resume length doesn’t matter.",
+      "Networking is manipulative.",
+      "Soft skills don’t matter.",
+      "Career planning limits your freedom.",
+      "Only extroverts succeed professionally.",
+      "Remote jobs are easy to get.",
+      "Certifications guarantee instant employment.",
+      "You don’t need to research salary.",
+      "Career coaches tell you what to do.",
+      "Job hopping always ruins your career.",
+      "All government jobs are low paying.",
+      "Manufacturing is low skill.",
+      "Trade school is a last resort.",
+      "Leadership cannot be learned.",
+      "Side hustles always turn into careers.",
+      "If you love something, money doesn’t matter.",
+      "Career success happens by luck.",
+      "Employers don’t value experience.",
+      "Internships are unpaid.",
+      "Older workers can’t learn new skills.",
+      "You need perfect grades to succeed.",
+      "Every degree guarantees employment.",
+      "AI will eliminate all jobs.",
+      "Skilled trades are physically easy.",
+      "Office jobs are stress-free.",
+      "Certifications are permanent.",
+      "Salary is the only measure of success.",
+      "Career growth doesn’t require networking.",
+      "If you start late, it’s too late.",
+      "Employers don’t check references.",
+      "Resume gaps automatically disqualify you.",
+      "All remote work is flexible.",
+      "Career coaches only help students.",
+      "You can fake skills on a resume safely.",
+      "You should avoid asking questions in interviews."
+    ];
+
+    let playerName = "";
+    let score = 0;
+    let correctAnswers = 0;
+    let round = 0;
+    let totalRounds = 10;
+    let roundsData = [];
+    let currentRound = null;
+    let answeredThisRound = false;
+
+    function shuffle(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function buildRounds(numRounds) {
+      const shuffledTruths = shuffle(truths);
+      const shuffledMyths = shuffle(myths);
+      const rounds = [];
+
+      const maxRounds = Math.min(
+        numRounds,
+        shuffledMyths.length,
+        Math.floor(shuffledTruths.length / 2)
+      );
+
+      let truthIndex = 0;
+
+      for (let i = 0; i < maxRounds; i++) {
+        const twoTruths = [
+          shuffledTruths[truthIndex],
+          shuffledTruths[truthIndex + 1]
+        ];
+        truthIndex += 2;
+
+        const myth = shuffledMyths[i];
+
+        const options = shuffle([
+          { text: twoTruths[0], isMyth: false },
+          { text: twoTruths[1], isMyth: false },
+          { text: myth, isMyth: true }
+        ]);
+
+        rounds.push(options);
+      }
+
+      return rounds;
+    }
+
+    function startGame() {
+      playerName = document.getElementById("playerName").value.trim() || "Player";
+      totalRounds = Number(document.getElementById("roundSelect").value);
+
+      const maxPossibleRounds = Math.min(myths.length, Math.floor(truths.length / 2));
+      if (totalRounds > maxPossibleRounds) {
+        totalRounds = maxPossibleRounds;
+      }
+
+      score = 0;
+      correctAnswers = 0;
+      round = 0;
+      answeredThisRound = false;
+      roundsData = buildRounds(totalRounds);
+
+      document.getElementById("startScreen").classList.add("hidden");
+      document.getElementById("endScreen").classList.add("hidden");
+      document.getElementById("gameScreen").classList.remove("hidden");
+
+      loadRound();
+    }
+
+    function loadRound() {
+      currentRound = roundsData[round];
+      answeredThisRound = false;
+
+      document.getElementById("roundInfo").textContent = `Round ${round + 1} of ${totalRounds}`;
+      document.getElementById("scoreInfo").textContent = `Score: ${score}`;
+      document.getElementById("correctInfo").textContent = `Correct: ${correctAnswers}`;
+
+      const container = document.getElementById("choicesContainer");
+      container.innerHTML = "";
+
+      currentRound.forEach((option, index) => {
+        const button = document.createElement("button");
+        button.className = "statement-btn";
+        button.innerHTML = `<span class="statement-label">Option ${index + 1}:</span> ${option.text}`;
+        button.onclick = () => submitAnswer(index);
+        container.appendChild(button);
+      });
+
+      const resultBox = document.getElementById("resultBox");
+      resultBox.className = "result hidden";
+      resultBox.innerHTML = "";
+      document.getElementById("nextButton").classList.add("hidden");
+    }
+
+    function submitAnswer(selectedIndex) {
+      if (answeredThisRound) return;
+      answeredThisRound = true;
+
+      const selected = currentRound[selectedIndex];
+      const mythOption = currentRound.find(option => option.isMyth);
+
+      const resultBox = document.getElementById("resultBox");
+
+      if (selected.isMyth) {
+        score += 10;
+        correctAnswers += 1;
+        resultBox.className = "result correct";
+        resultBox.innerHTML = `
+          <strong>Correct.</strong><br><br>
+          You found the myth:<br>
+          <strong>${selected.text}</strong><br><br>
+          Points earned: <strong>10</strong>
+        `;
+      } else {
+        resultBox.className = "result incorrect";
+        resultBox.innerHTML = `
+          <strong>Not quite.</strong><br><br>
+          You picked a truth:<br>
+          <strong>${selected.text}</strong><br><br>
+          The actual myth was:<br>
+          <strong>${mythOption.text}</strong><br><br>
+          Points earned: <strong>0</strong>
+        `;
+      }
+
+      document.getElementById("scoreInfo").textContent = `Score: ${score}`;
+      document.getElementById("correctInfo").textContent = `Correct: ${correctAnswers}`;
+      document.getElementById("nextButton").classList.remove("hidden");
+    }
+
+    function nextRound() {
+      round++;
+      if (round >= totalRounds) {
+        endGame();
+      } else {
+        loadRound();
+      }
+    }
+
+    function endGame() {
+      document.getElementById("gameScreen").classList.add("hidden");
+      document.getElementById("endScreen").classList.remove("hidden");
+
+      const maxScore = totalRounds * 10;
+      const percent = Math.round((score / maxScore) * 100);
+
+      document.getElementById("finalMessage").textContent = `Nice work, ${playerName}!`;
+      document.getElementById("finalScore").textContent = `Your final score is ${score} out of ${maxScore}.`;
+      document.getElementById("finalBreakdown").textContent = `You got ${correctAnswers} out of ${totalRounds} correct. Accuracy: ${percent}%.`;
+
+      let summary = "";
+      if (percent >= 90) {
+        summary = "You crushed it. Career myths should probably block your number.";
+      } else if (percent >= 70) {
+        summary = "Strong job. You can spot bad career advice better than a shocking number of adults.";
+      } else if (percent >= 50) {
+        summary = "Not bad. A few myths slipped past security, but the lesson still landed.";
+      } else {
+        summary = "The myths got some wins, but now they have fewer places to hide.";
+      }
+
+      document.getElementById("playerSummary").textContent = summary;
+    }
+
+    function restartGame() {
+      document.getElementById("playerName").value = "";
+      document.getElementById("startScreen").classList.remove("hidden");
+      document.getElementById("gameScreen").classList.add("hidden");
+      document.getElementById("endScreen").classList.add("hidden");
+    }
+
+    document.getElementById("truthCount").textContent = truths.length;
+    document.getElementById("mythCount").textContent = myths.length;
+  </script>
+</body>
+</html>
